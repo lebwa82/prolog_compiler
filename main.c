@@ -31,7 +31,7 @@ key_words key_words_list[] = {{-1, "+"}, {-2, "-"}, {-3, "="}, {-4, "*"},
 struct names {
     int index;
     char name[10];
-    int vid;
+    int vid; 
     int type;
 };
 
@@ -40,8 +40,9 @@ int is_key_word(char *word)
     return 0;
 }
 
-char stroka[] = "rty(abc,def";
+char stroka[] = "read(mark, Book)";
 char *i = stroka - 1;
+
 char get_symbol()
 {
     i++;
@@ -52,22 +53,43 @@ char get_symbol()
     return 0;
 }
 
-char *get_word(char *s)
+char step_back()
 {
-    char symbol = *s;
+    i--;
+    return 0;
+}    
+
+char *get_word()
+{
+    //char symbol = *s;
     char *word = malloc(30 * sizeof(char));
-    strcat(word, &symbol);
-    symbol = get_symbol();
+    //strcat(word, &symbol);
+    char symbol = get_symbol();
     while (isalpha(symbol) || isdigit(symbol) || symbol == '_') {
         strcat(word, &symbol);
         symbol = get_symbol();
     }
-    *s = symbol;
+    step_back();
     return word;
 }
 
+FILE *f;
+char get_word_f()
+{
+    char c = fgetc(f);
+    if (c != '\0') {
+        printf("c = %c\n", c);
+        return c;
+    }
+    fclose(f);
+    return 0;
+}
+ 
+
+
 int main()
 {
+    //f = fopen("input.txt", "r");
     char symbol = 0;
     //char word[30];
 
@@ -82,7 +104,6 @@ START: {
                 printf("Programm complete\n");
                 return 0;
         }
-        printf("symbol = %c\n", symbol);
         if (isalpha(symbol)) {
             goto WORD;
         }
@@ -97,8 +118,13 @@ ONELINE_COMMENT: {
         switch (symbol) {
             case '\n':
                 goto START;
-            default:
+            //case 'EOF':
+            //    goto START;
+            case '\0':
+                printf("ONELINE_COMMENT ERROR\n");
+                goto ERROR;
 
+            default:
                 goto ONELINE_COMMENT;
         }
     }
@@ -126,14 +152,16 @@ MULTILINE_COMMENT: {
         }
     }
 WORD: {
-        char *word = get_word(&symbol);
+        step_back();
+        char *word = get_word();
+        symbol = get_symbol();
         if (is_key_word(word)) {
             //что-то с ключевым словом
         } else {
             //занести в таблицу имен
             if (symbol == '(') {
                 free(word);
-                goto PREDICT_RELATION_OR_FACT_FIRST_NAME;
+                goto PREDICT_RELATION_OR_FACT_FIRST_VARIABLE_OR_STRING;
             } else {
                 free(word);
                 printf("WORD ERROR\n");
@@ -142,26 +170,51 @@ WORD: {
         }
     }
 
-
-PREDICT_RELATION_OR_FACT_FIRST_NAME: {
+PREDICT_RELATION_OR_FACT_FIRST_VARIABLE_OR_STRING: {
+        
         symbol = get_symbol();
-        if (!isalpha(symbol)) {
-            printf("PREDICT_RELATION_OR_FACT_FIRST_NAME ERROR\n");
-            goto ERROR;
+        if(symbol == '"')
+        {
+            goto DEFINITELY_FACT_SOLE_STRING;
         }
-        char *word = get_word(&symbol);
+        if(isalpha(symbol))
+        {
+            step_back();
+            goto PREDICT_RELATION_OR_FACT_FIRST_VARIABLE;
+        }
+        printf("PREDICT_RELATION_OR_FACT_FIRST_VARIABLE_OR_STRING ERROR\n");
+        goto ERROR;
+    }
+
+DEFINITELY_FACT_SOLE_STRING: {
+    step_back();
+    char *word = get_word();
         switch (symbol) {
-            case ',':
-                goto PREDICT_RELATION_SECOND_NAME;
-            case ')':
-                printf("Fact complete\n");
-                goto START;
+            case '"':
+                goto PREDICT_RELATION_COMPLETE_PREDICT_BRACKET_AND_POINT;
 
             default:
-                printf("PREDICT_RELATION_OR_FACT_FIRST_NAME ERROR\n");
+                printf("DEFINITELY_FACT_SOLE_STRING ERROR\n");
                 goto ERROR;
-        }
+        }        
+}
+
+PREDICT_RELATION_OR_FACT_FIRST_VARIABLE: {
+    step_back();
+    char *word = get_word();
+    switch (symbol) {
+        case ',':
+            goto PREDICT_RELATION_SECOND_NAME;
+        case ')':
+            goto PREDICT_POINT;
+
+        default:
+            printf("PREDICT_RELATION_OR_FACT_FIRST_VARIABLE ERROR\n");
+            goto ERROR;
     }
+}
+
+
 PREDICT_RELATION_SECOND_NAME: {
         symbol = get_symbol();
         if (symbol == '"') {
@@ -181,29 +234,43 @@ PREDICT_RELATION_SECOND_NAME_AS_STRING: {
             printf("PREDICT_RELATION_SECOND_NAME_AS_STRING ERROR\n");
             goto ERROR;
         }
-        char *word = get_word(&symbol);
+        step_back();
+        char *word = get_word();
         if (symbol != '"') {
             printf("PREDICT_RELATION_SECOND_NAME_AS_STRING ERROR\n");
             goto ERROR;
         }
-        goto PREDICT_RELATION_COMPLETE_PREDICT_BRACKET;
+        step_back();
+        goto PREDICT_RELATION_COMPLETE_PREDICT_BRACKET_AND_POINT;
     }
 
 
 PREDICT_RELATION_SECOND_NAME_AS_VARIABLE: {
-        char *word = get_word(&symbol);
-        goto PREDICT_RELATION_COMPLETE_PREDICT_BRACKET;
+        step_back();
+        char *word = get_word();
+        step_back();
+        goto PREDICT_RELATION_COMPLETE_PREDICT_BRACKET_AND_POINT;
     }
 
-PREDICT_RELATION_COMPLETE_PREDICT_BRACKET: {
+PREDICT_RELATION_COMPLETE_PREDICT_BRACKET_AND_POINT: {
+        symbol = get_symbol();
         if (symbol == ')') {
-            printf("RELATION complete\n");
-            goto START;
+            goto PREDICT_POINT;
         }
         printf("PREDICT_RELATION_COMPLETE_PREDICT_BRACKET ERROR\n");
         goto ERROR;
-
     }
+
+PREDICT_POINT: {
+    symbol = get_symbol();
+    if (symbol == '.') {
+        printf("Sentence complete\n");
+        goto START;
+    }
+    printf("PREDICT_POINT ERROR\n");
+    goto ERROR;
+}
+
 
 
 ERROR:
@@ -232,14 +299,19 @@ FLOAT:
         }
     }
 
-
-    return 0;
+VARIABLE:
+    symbol = get_symbol();
+    if(isalpha(symbol) && symbol < 'Z')
+    {
+        step_back();
+        get_word();
+    }
 }
 
 //комментарии для души
 //isdigit
 //isalpha
-
+//код хуйня, кодеры пидоры
 
 
 
