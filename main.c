@@ -61,7 +61,7 @@ int is_key_word(char *word)
     return 0;
 }
 
-char stroka[] = "read(mark,Book):-fact(Tom,Jerry):-X>5..";
+char stroka[] = "read(mark,Book,dzen):-fact(Tom,Jerry,Kim).";
 char *i = stroka - 1;
 
 char get_symbol()
@@ -323,6 +323,9 @@ PREDICT_RELATION_COMPLETE_PREDICT_BRACKET_AND_POINT: {
         symbol = get_symbol();
         if (symbol == ')') {
             goto PREDICT_POINT_OR_CONDITION;
+        }
+        if (symbol == ',') {
+            goto PREDICT_RELATION_SECOND_NAME;
         }
         printf("PREDICT_RELATION_COMPLETE_PREDICT_BRACKET ERROR\n");
         goto ERROR;
