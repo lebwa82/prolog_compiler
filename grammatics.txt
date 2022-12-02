@@ -1,0 +1,48 @@
+Привет!
+PROGR->MOP
+MOP->MOP. P
+MOP->P
+P->H:-B.
+P->H.
+
+H->a(ARG)       R= ":-"
+B->a(ARG)   
+B->S
+B->B,a(ARG)
+B->B,S
+
+
+
+S->E   //Нихрена не безусловно
+S-> S = E
+S->S is E
+S->S>E
+S->S<E
+E->T
+E->E+T
+E->E-T
+T->F
+T->T*F
+T->T/F
+F->a
+ARG->a 
+ARG->ARG,a
+
+
+
+реализация:
+a->word
+a->"word"
+
+
+
+
+
+
+
+
+
+
+на будущее:
+Name -> A
+Str -> "word"

@@ -61,7 +61,7 @@ int is_key_word(char *word)
     return 0;
 }
 
-char stroka[] = "read(mark,Book,dzen):-fact(Tom,Jerry,Kim).";
+char stroka[] = "nested_condition(mark,Book):-relation(Tom,Jerry,Kim):-fact(Book).";//входная строка
 char *i = stroka - 1;
 
 char get_symbol()
@@ -439,5 +439,5 @@ VARIABLE:
 //комментарии для души
 //isdigit
 //isalpha
-
+.
 
