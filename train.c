@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-enum type {
+enum leexema {
     PROGR,
     MOP,
     P,
@@ -11,16 +11,27 @@ enum type {
     B,
     S,
     E,
-    T, 
-    F, 
-    a,
-    ARG,
+    T,
+    F,
+    //a,
+    //ARG,
 };
 
+struct lex {
+    enum leexema leexema;
+    int len;
+    char data[10];
+};
 
-
-char stroka[] = "nested_condition(mark,Book):-relation(Tom,Jerry,Kim):-fact(Book).";//входная строка
+char stroka[] =
+    "nested_condition(mark,\"Book\"):-relation(\"Tom\",\"Jerry\",Kim):-fact(Book).";//входная строка
 char *i = stroka - 1;
+
+char step_back()
+{
+    i--;
+    return 0;
+}
 
 char get_symbol()
 {
@@ -49,11 +60,31 @@ char *get_word()
     return word;
 }
 
-struct lex {
-    enum symbol type;
-    char data[10];
-    int len;
-};
+float get_number()
+{
+    char symbol = get_symbol();
+    float number = 0;
+    while (isdigit(symbol) || number == 0) {
+        number = number * 10 + (symbol - '0');
+        symbol = get_symbol();
+    }
+    if (symbol == '.') {
+        float tmp = 10;
+        char symbol = get_symbol();
+        while (isdigit(symbol) || number == 0) {
+            number += (symbol - '0') / tmp;
+            tmp *= 10;
+            symbol = get_symbol();
+        }
+        printf("READ FLOAT\n");
+
+    } else
+        printf("READ INT\n");
+
+    step_back();
+    printf("DIGIT = %f\n", number);
+    return number;
+}
 
 enum symbol {
     OPEN_BRACKET,
@@ -74,95 +105,178 @@ enum symbol {
     MULTIPLE_COMMENT_END,
     ONELINE_COMMENT_START,
     BACKSLASH_N,
+    DIGIT,
+
+
+    ARG,
+    a
 };
-enum symbol massiv[100];
-enum symbol *pointer = massiv;
+enum symbol _massiv[100];
+enum symbol *pointer = _massiv;
 
 int create_lex(enum symbol symbol_type, char *data)
 {
-    struct lex lex = {symbol_type, data, strlen(data)};
+    struct lex lex = {symbol_type, strlen(data), ""};
+    memcpy(lex.data, data, strlen(data));
     memcpy(pointer, &lex, sizeof(struct lex));//massiv[i]=lex;
     pointer++;
 }
 
 int main()
 {
-    char symbol = 0;
-    while(symbol!='\0')
-    {
+    enum symbol *massiv = _massiv;
+    char symbol = 1;
+    while (1) {
         symbol = get_symbol();
-        switch (symbol){
+        printf("symbol = %c\n", symbol);
+        switch (symbol) {
+            case '\0':
+                goto COMPLETE;;
             case '(':
-                create_lex(OPEN_BRACKET, '(');
+                create_lex(OPEN_BRACKET, "(");
                 break;
             case ')':
-                create_lex(CLOSE_BRACKET, '(');
+                create_lex(CLOSE_BRACKET, "(");
                 break;
             case ':':
                 symbol = get_symbol();
-                if(symbol!='-'){printf("ERROR, next symbol is not "); goto ERROR;}
-                create_lex(IF, ':-');
+                if (symbol != '-') {
+                    printf("ERROR, next symbol is not ");
+                    goto ERROR;
+                }
+                create_lex(IF, ":-");
                 break;
             case '"':
-                create_lex(CAV, '"');
+              //  char a[2];
+               // a[0] = '"';
+                //a[1] = '\0';
+                create_lex(CAV, "\"");
                 break;
             case ',':
-                create_lex(COMMA, ',');
+                create_lex(COMMA, ",");
                 break;
             case '.':
-                create_lex(POINT, '.');
+                create_lex(POINT, ".");
                 break;
             case '+':
-                create_lex(PLUS, '+');
+                create_lex(PLUS, "+");
                 break;
             case '-':
-                create_lex(MINUS, '-');
+                create_lex(MINUS, "-");
                 break;
             case '>':
-                create_lex(MORE, '>');
+                create_lex(MORE, ">");
                 break;
             case '<':
-                create_lex(LESS, '<');
+                create_lex(LESS, "<");
                 break;
             case '%':
-                create_lex(PERCENT, '%');
+                create_lex(PERCENT, "%");
                 break;
             case '\n':
-                create_lex(BACKSLASH_N, '\n');
+                create_lex(BACKSLASH_N, "\n");
                 break;
             case '*':
                 symbol = get_symbol();
                 if (symbol == '/') {
-                    create_lex(MULTIPLE_COMMENT_END, '');
-                }
-                else {
+                    create_lex(MULTIPLE_COMMENT_END, "");
+                } else {
                     step_back();
-                    create_lex(MULTIPLY, '*');
+                    create_lex(MULTIPLY, "*");
                     break;
-                } 
+                }
             case '/':
                 symbol = get_symbol();
                 if (symbol == '*') {
-                    create_lex(MULTIPLE_COMMENT_START, '');
-                }
-                else {
+                    create_lex(MULTIPLE_COMMENT_START, " ");
+                } else {
                     step_back();
-                    create_lex(DIVIDE, '/');
+                    create_lex(DIVIDE, "/");
                     break;
-                }                
+                }
+            default:
+                if (isalpha(symbol)) {
+                    //puts("digit");
+                    step_back();
+                    char *word = get_word();
+                    create_lex(WORD, word);
+                } else if (isdigit(symbol)) {
+                    //puts("digit");
+                    step_back();
+                    int number = get_number();
+                    char word[30];
+                    sprintf(word, "%d", number);
+                    create_lex(DIGIT, word);
+                } else
+                    goto ERROR;
         }
-        if(isdigit(symbol))
-        {
-            step_back();
-            char word[30] = get_word();
-            create_lex(WORD, word);
-        }
-        goto ERROR;
-    }
-   
-ERROR:
-    printf("ERROR");    
 
+    }
+
+ERROR:
+    printf("ERROR");
+    return 0;
+
+
+
+COMPLETE:
+    enum symbol *p = massiv;
+    while (p != pointer) {
+        printf("%2d ", *p);
+        p++;
+    }
+    int len = pointer - massiv, i, i2, len2 = pointer - massiv;
+
+    enum symbol massiv2[len];
+    while (i2 < len2) {
+        if (i2 + 2 < len && massiv[i] == CAV && massiv[i + 1] == WORD && massiv[i + 2] == CAV) {
+            massiv2[i2] = massiv[i + 1];
+            i2++;
+            i+=3;
+            len2-=2;
+        } else {
+            massiv2[i2] = massiv[i];
+            i++;
+            i2++;
+        }
+    }
+    printf("\nlen = %d len2 = %d\n", len, len2);
+    for(i = 0; i < len2; i++)
+        printf("%2d ", massiv2[i]);
+    
+    massiv = massiv2;
+    len = len2;
+    for (i = 0; i < len; i++) {
+        if (i + 2 < len && massiv[i] == OPEN_BRACKET && massiv[i + 1] == WORD &&
+            massiv[i + 2] == CLOSE_BRACKET) {
+            massiv[i + 1] = ARG;
+            continue;
+        }
+        if (i + 1 < len & massiv[i] == WORD && massiv[i + 1] == OPEN_BRACKET) {
+            massiv[i] = a;
+            continue;
+        }
+        if (i + 2 < len && massiv[i] == COMMA && massiv[i + 1] == WORD && massiv[i + 2] == CLOSE_BRACKET) {
+            massiv[i + 1] = a;
+            continue;
+        }
+        if (i + 2 < len && massiv[i] == COMMA && massiv[i + 1] == WORD && massiv[i + 2] == COMMA) {
+            massiv[i + 1] = a;
+            continue;
+        }
+        if (i + 2 < len && massiv[i] == OPEN_BRACKET && massiv[i + 1] == WORD && massiv[i + 2] == COMMA) {
+            massiv[i + 1] = ARG;
+            continue;
+        }
+    }
+    printf("\n\n");
+    for (i = 0; i < len; i++) {
+        printf("%2d ", massiv[i]);
+    }
+
+
+
+    return 0;
 
 
 

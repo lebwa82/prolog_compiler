@@ -13,36 +13,64 @@ B->B,S
 
 
 
-S->E   //Нихрена не безусловно
-S-> S = E
-S->S is E
-S->S>E
-S->S<E
-E->T
-E->E+T
-E->E-T
-T->F
-T->T*F
-T->T/F
-F->a
-ARG->a 
-ARG->ARG,a
+1) S->E   //Нихрена не безусловно
+2) S-> S = E
+3) S->S is E
+4) S->S > E
+5) S->S < E
+6) E->T
+7) E->E+T
+8) E->E-T
+9) T->F
+10) T->T*F
+11) T->T/F
+12) F->a
+13) F->a(ARG)
+14) F->(E)
+15) ARG->a 
+16) ARG->ARG,a
 
 
 
 реализация:
-a->word
-a->"word"
+15.1) a->word
+15.2) a->"word"
 
-
-
-
-
-
-
+n[100][21]
+massiv
+word->a
+a->arg
+(E)->F
 
 
 
 на будущее:
-Name -> A
+Name -> Aabcd
 Str -> "word"
+
+
+WORD(WORD) :- WORD(WORD, WORD, WORD, WORD, WORD, WORD, WORD)
+                    ARG, a   , a   , a   , a   , a,  , a   )
+                    ARG,       a   , a   , ........
+                    ARG,             a   , a   , ........
+                    
+(ARG,a,a,a,a,a,a)
+
+(WORD) ->(arg)
+WORD( -> a(
+,WORD) ->,a)
+,WORD, -> ,a,
+(WORD, -> (ARG,
+
+
+/*
+(WORD) ->(arg)
+WORD( -> a(
+WORD) ->a)
+(WORD, -> (ARG,
+WORD, -> a,
+*/
+
+
+Вопрос?
+ARG, a
