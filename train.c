@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-enum leexema {
+enum leexema123 {
     PROGR,
     MOP,
     P,
@@ -17,14 +17,58 @@ enum leexema {
     //ARG,
 };
 
+enum symbol {
+    OPEN_BRACKET,
+    CLOSE_BRACKET,
+    WORD,
+    IF,
+    CAV,
+    COMMA,//запятая
+    POINT,
+    PLUS,
+    MINUS,
+    MORE,
+    LESS,
+    MULTIPLY,
+    DIVIDE,
+    PERCENT,
+    MULTIPLE_COMMENT_START,
+    MULTIPLE_COMMENT_END,
+    ONELINE_COMMENT_START,
+    BACKSLASH_N,
+    DIGIT,//константа
+    //STRING,
+
+
+    ARG,
+    a
+};
+
+enum lexema{
+    constanta,
+    STRING, 
+    NAME,
+};
+
+enum symbol _massiv[100];
+enum symbol *pointer = _massiv;
+
 struct lex {
-    enum leexema leexema;
+    enum lexema leexema;
     int len;
     char data[10];
 };
 
+int create_lex(enum symbol symbol_type, char *data)
+{
+    struct lex lex = {symbol_type, strlen(data), ""};
+    memcpy(lex.data, data, strlen(data));
+    memcpy(pointer, &lex, sizeof(struct lex));//massiv[i]=lex;
+    pointer++;
+}
+
 char stroka[] =
-    "nested_condition(mark,\"Book\"):-relation(\"Tom\",\"Jerry\",Kim):-fact(Book).";//входная строка
+    "nested_condition(mark,\"Book\"):-relation(\"Tom\",\"Jerry\",Kim).";//входная строка
 char *i = stroka - 1;
 
 char step_back()
@@ -86,57 +130,31 @@ float get_number()
     return number;
 }
 
-enum symbol {
-    OPEN_BRACKET,
-    CLOSE_BRACKET,
-    WORD,
-    IF,
-    CAV,
-    COMMA,//запятая
-    POINT,
-    PLUS,
-    MINUS,
-    MORE,
-    LESS,
-    MULTIPLY,
-    DIVIDE,
-    PERCENT,
-    MULTIPLE_COMMENT_START,
-    MULTIPLE_COMMENT_END,
-    ONELINE_COMMENT_START,
-    BACKSLASH_N,
-    DIGIT,
 
-
-    ARG,
-    a
-};
-enum symbol _massiv[100];
-enum symbol *pointer = _massiv;
-
-int create_lex(enum symbol symbol_type, char *data)
-{
-    struct lex lex = {symbol_type, strlen(data), ""};
-    memcpy(lex.data, data, strlen(data));
-    memcpy(pointer, &lex, sizeof(struct lex));//massiv[i]=lex;
-    pointer++;
-}
 
 int main()
 {
+    int count_bracket = 0;
     enum symbol *massiv = _massiv;
     char symbol = 1;
     while (1) {
         symbol = get_symbol();
         printf("symbol = %c\n", symbol);
+        if(count_bracket < 0) 
+        {
+            printf("Bracket ERROR\n");
+            goto ERROR;
+        }
         switch (symbol) {
             case '\0':
                 goto COMPLETE;;
             case '(':
+                count_bracket++;
                 create_lex(OPEN_BRACKET, "(");
                 break;
             case ')':
-                create_lex(CLOSE_BRACKET, "(");
+                count_bracket--;
+                create_lex(CLOSE_BRACKET, ")");
                 break;
             case ':':
                 symbol = get_symbol();
@@ -220,6 +238,11 @@ ERROR:
 
 
 COMPLETE:
+    if (count_bracket != 0)
+    {
+        printf("Bracket ERROR\n");
+        goto ERROR;
+    }
     enum symbol *p = massiv;
     while (p != pointer) {
         printf("%2d ", *p);
@@ -230,7 +253,8 @@ COMPLETE:
     enum symbol massiv2[len];
     while (i2 < len2) {
         if (i2 + 2 < len && massiv[i] == CAV && massiv[i + 1] == WORD && massiv[i + 2] == CAV) {
-            massiv2[i2] = massiv[i + 1];
+            //massiv2[i2] = massiv[i + 1];
+            massiv2[i2] = WORD;//STRING
             i2++;
             i+=3;
             len2-=2;
@@ -273,6 +297,22 @@ COMPLETE:
     for (i = 0; i < len; i++) {
         printf("%2d ", massiv[i]);
     }
+
+    struct relation{
+        char relation_name[30];
+        int count_args;
+        char args[30];
+    };
+
+    struct sentence{
+        struct relation *head;
+        struct relation *body;
+    };
+
+
+
+
+
 
 
 

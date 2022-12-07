@@ -61,8 +61,7 @@ int is_key_word(char *word)
     return 0;
 }
 
-char stroka[] = "nested_condition(mark,Book):-relation(Tom,Jerry,Kim):-fact(Book).";//входная строка
-char *i = stroka - 1;
+char stroka[] = "nested_condition(mark,Book):-relation(Tom,Jerry,Kim).";
 
 char get_symbol()
 {
