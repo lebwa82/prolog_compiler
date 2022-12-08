@@ -16,7 +16,7 @@ enum leexema123 {
     //a,
     //ARG,
 };
-
+//таблица ключевых слов(отриц)+создать массив АКА таблица имен([хэш-функция??])
 enum symbol {
     OPEN_BRACKET,
     CLOSE_BRACKET,
@@ -36,18 +36,19 @@ enum symbol {
     MULTIPLE_COMMENT_END,
     ONELINE_COMMENT_START,
     BACKSLASH_N,
-    DIGIT,//константа
+    //DIGIT,//константа
     //STRING,
 
 
-    ARG,
-    a
+    //ARG,
+    //a
 };
 
-enum lexema{
-    constanta,
+enum names{
+    DIGIT,
     STRING, 
     NAME,
+    VAR,
 };
 
 enum symbol _massiv[100];
