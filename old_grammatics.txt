@@ -1,34 +1,36 @@
 Привет!
-PROGR->MOP
-MOP->MOP. P
-MOP->P
-P->H:-B.
-P->H.
-
-H->a(ARG)       R= ":-"
-B->a(ARG)   
-B->S
-B->B,a(ARG)
-B->B,S
-
-
 
 1) S->E   
 2) S-> S = E
 3) S->S is E
 4) S->S > E
 5) S->S < E
-6) E->T
-7) E->E+T
-8) E->E-T
-9) T->F
-10) T->T*F
-11) T->T/F
+6) E->T                 R = ), +, -, #
+7) E->E+T               R = ), +, -, #
+8) E->E-T               R = ), +, -, #
+9) T->F                 
+10) T->T*F              R = +, -, *, /, ), #
+11) T->T/F              R = +, -, *, /, ), #
 12) F->a
-13) F->a(ARG)
+//13) F->a(ARG)
 14) F->(E)
 15) ARG->a 
 16) ARG->ARG,a
+
+
+
+17) PROGR->MOP              R = '\0'
+18) MOP->MOP. P
+19) MOP->P
+20) P->H:-B.
+21) P->H. 
+
+
+22) B->B,S
+23) B->B,a(ARG)
+24) B->S            
+25) B->a(ARG).       R= "." "," и -5 символ if
+26) H->a(ARG)       R= ":-" "." 
 
 
 
@@ -71,6 +73,7 @@ WORD) ->a)
 WORD, -> a,
 */
 
+autist(Misha). -> H
 
-Вопрос?
-ARG, a
+autist(Misha) :- a(Arg). 
+
