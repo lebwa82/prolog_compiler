@@ -77,3 +77,6 @@ autist(Misha). -> H
 
 autist(Misha) :- a(Arg). 
 
+
+
+
