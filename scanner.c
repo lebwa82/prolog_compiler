@@ -9,14 +9,10 @@
 int main_massiv_id[100];
 int main_i;
 
-enum const_or_var {//вид
-    CONSTANTA,
-    VAR,
-};
 
-
-char pre_stroka[] = "";
-char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
+char pre_stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
+char stroka[100] = "";
+//char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
 int stroka_i = -1;
 int pre_stroka_i = -1;
 int max_main_id;
@@ -142,13 +138,13 @@ int main()
     float number = 0;
 
 
-/*
+
     //удаление комментариев и пробелов
     stroka_i = 0;
     pre_stroka_i = -1;
 PRE_AUTOMAT: {
         symbol = pre_get_symbol();
-        printf("pre_symbol = %c\n", symbol);
+        //printf("pre_symbol = %c\n", symbol);
         switch (symbol) {
             case '%':
                 goto ONELINE_COMMENT;
@@ -157,9 +153,9 @@ PRE_AUTOMAT: {
             case ' ':
                 goto  PRE_AUTOMAT;
             case '\0':
-                stroka[stroka_i] = symbol;
+                stroka[stroka_i] = '\0';
                 printf("PRE_AUTOMAT complete\n");
-                goto START;
+                goto PRE_START;
 
             default:
                 stroka[stroka_i] = symbol;
@@ -174,7 +170,7 @@ ONELINE_COMMENT:
         case '\n':
             goto PRE_AUTOMAT;
         //case 'EOF':
-        //    goto START;
+        //    goto PRE_START;
         case '\0':
             printf("ONELINE_COMMENT ERROR\n");
             goto ERROR;
@@ -200,7 +196,7 @@ MULTILINE_COMMENT: {
         symbol = pre_get_symbol();
         switch (symbol) {
             case '*':
-                goto START;
+                goto PREDICT_END_MULTILINE_COMMENT;
             
             case '\0':
                 printf("MULTILINE_COMMENT ERROR\n");
@@ -220,11 +216,13 @@ PREDICT_END_MULTILINE_COMMENT:{
                 goto MULTILINE_COMMENT;
         }
     }
-*/
+
 
 PRE_START:
     //считаем, что избавились от пробелов и комментариев
     stroka_i = -1;
+    printf("stroka = %s\n", stroka);
+    //return 0;
 START:
     //stroka[stroka_i] = '\0';
     //return 0;
