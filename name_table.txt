@@ -1,3 +1,9 @@
  1  3  1 nested_condition nested_condition  0
  2  1  0 mark mark  0
  3  3  1 Book Book  0
+ 4  3  1 sum sum  0
+ 5  3  1 X X  0
+ 6  3  1 R R  0
+ 7  3  1 read read  0
+ 8  3  1 Nina Nina  0
+ 9  3  1 article article  0

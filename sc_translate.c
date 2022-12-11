@@ -40,6 +40,21 @@ int get_len_rule_R(int *R)
     return i;
 }
 
+int is_symbol_not_a_condition_symbol(int main_i, int rule_len_R, int * condition_symbol)
+{
+    int i=0;
+    //printf("main_i+rule_len_R = %d main_mass_size = %d\n", main_i+rule_len_R, main_mass_size);
+    if(main_i+rule_len_R >= main_mass_size)
+        return 0;
+    int symbol = main_mass[main_i+rule_len_R];
+    for(i=0; i<20; i++) {
+        if(condition_symbol[i] == symbol)
+            return 1;
+    }
+    return 0;
+}
+
+
 
 
 int compress_main_massiv(int left, int size)
@@ -120,8 +135,19 @@ int main()
                    Names[i].literal_name, Names[i].value_char);
     }
 
+    struct rule PROGR__MOP = {//PROGR->MOP
+        7, PROGR, {MOP}, {0}, NULL
+    };
+    struct rule MOP__MOP_P = {//MOP->MOP P
+        8, MOP, {MOP, P}, {0}, &PROGR__MOP
+    };
+    struct rule MOP__P = {//MOP->P
+        9, MOP, {P }, {0}, &MOP__MOP_P
+    };
+
+    
     struct rule P__a_BRACKET_ARG_BRACKET_POINT = {//P->a(ARG).
-        1, P, {a, is_key_word('('), ARG, is_key_word(')'), is_key_word('.')}, {0}, NULL
+        1, P, {a, is_key_word('('), ARG, is_key_word(')'), is_key_word('.')}, {0}, &MOP__P
     };
 
     struct rule P__Q_POINT = {//P->Q.
@@ -139,7 +165,7 @@ int main()
         &Q__Q_COMMA_a__BRACKET_ARG_BRACKET
     };
     struct rule ARG__a = {//ARG->a
-       5, ARG, {a, 0}, {0}, &Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET
+       5, ARG, {a, 0}, {is_key_word('('), 0}, &Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET
     };
     struct rule ARG__ARG_COMMA_a = {//ARG->ARG,a
        6, ARG, {ARG, is_key_word(','), a, 0}, {0}, &ARG__a
@@ -147,7 +173,7 @@ int main()
 
 
     print_main_mass();
-    for (int i = 1; i < main_mass_size; i++) {
+    for (int i = 0; i < main_mass_size; i++) {
         if(main_mass[i] > 0)
         {
             main_mass[i] = a;
@@ -159,22 +185,30 @@ int main()
     int main_i, rule_len_R, i=0, j;
     struct rule *head = &ARG__ARG_COMMA_a;
     struct rule *p = head;
-    for (main_i = 0; main_i < main_mass_size; main_i++) {
+    main_i = 0;
+    while(main_i <= main_mass_size){
         p = head;
         while (p != NULL) {
             int flag = 0;
             int *R = p->R;
-            printf("id_rule = %d\n", p->id_rule);
+            //printf("id_rule = %d main_i = %d\n", p->id_rule, main_i);
             if(R == NULL) {
                 printf("NULL\n");
                 return 0;
             }
           //  getchar();
             rule_len_R = get_len_rule_R(p->R);
-            //printf("rule_len_R = %d\n", rule_len_R);
+            if(p->id_rule == 1)
+            {
+                //printf("rule_len_R = %d\n", rule_len_R);
+                //printf("\n j = %d!!!!!!!!!!!!!!!\n", j);
+            }
+                
             j = main_i;
+            //printf("\n j = %d!!!!!!!!!!!!!!!\n", j);
             for (i = 0; i < rule_len_R; i++, j++) {
-               // printf(" i = %3d, j = %3d main_mass[j] = %3d R[i] = %3d\n", i, j, main_mass[j], main_mass[j]);
+                //if(p->id_rule == 1)
+                //    printf(" i = %3d, j = %3d main_mass[j] = %3d R[i] = %3d\n", i, j, main_mass[j], main_mass[j]);
                 if (main_mass[j] != R[i]) {
                     p = p->next;
                     flag = 1;//правило не подошло
@@ -183,11 +217,22 @@ int main()
                 }
             }
             //printf("Flag = %i\n", flag);
+            
             if (flag == 0) { //правило подошло, заменяем R->L
-                printf("before= main_i+1 = %d len = %d\n", main_i+1, rule_len_R);
+                int current_symbol = main_mass[main_i+rule_len_R];
+                //printf("For rule number %d cond_symb = %d\n", p->id_rule ,is_symbol_not_a_condition_symbol(main_i, rule_len_R, p->condition_symbol));
+                if(is_symbol_not_a_condition_symbol(main_i, rule_len_R, p->condition_symbol))
+                {
+                    p = p->next;
+                    //main_i++;
+                    continue;
+                }
+                //printf("before= main_i+1 = %d len = %d\n", main_i+1, rule_len_R);
+                //print_main_mass();
                 print_main_mass();
                 compress_main_massiv(main_i+1, rule_len_R-1);
                 main_mass[main_i] = p->L;
+                main_i = -1;
                 print_main_mass();
                 printf("Done rule %d\n", p->id_rule);
                 getchar();
@@ -195,13 +240,10 @@ int main()
             }
             //p = p->next;
         }
-        
+        main_i++;
     }
     printf("END\n");
     print_main_mass();
-
-
-
 
 return 0;
 }

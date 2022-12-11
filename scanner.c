@@ -8,12 +8,13 @@
 int main_massiv_id[100];
 int main_i;
 
-char pre_stroka[100] = "nested_condition(\"mark\",Book).";//:-relation  (Tom,123,-22222).";
+char pre_stroka[100] = "nested_condition(\"mark\",Book):-sum(X,R). read(Nina, article). ";//:-relation  (Tom,123,-22222).";
 char stroka[100] = "";
 //char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
 int stroka_i = -1;
 int pre_stroka_i = -1;
 int max_main_id;
+
 char get_symbol()
 {
     stroka_i++;
