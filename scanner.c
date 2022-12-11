@@ -5,12 +5,10 @@
 #include <stdlib.h>
 #include "header.h"
 
-
 int main_massiv_id[100];
 int main_i;
 
-
-char pre_stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
+char pre_stroka[100] = "nested_condition(\"mark\",Book).";//:-relation  (Tom,123,-22222).";
 char stroka[100] = "";
 //char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
 int stroka_i = -1;
@@ -50,13 +48,12 @@ int append_word_in_literals(char *word, enum type type, enum const_or_var const_
 //потому что переменная живет в рамках одного предложения
 {
     struct literal *p = head;
-    //вот тут живет
     while (p->next != NULL) {
         if (strcmp(p->literal_name, word) == 0)
             return p->id;
         p = p->next;
     }
-    //вот тут не живет уже
+    
     if (strcmp(p->literal_name, word) == 0)
         return p->id;
 
