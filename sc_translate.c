@@ -34,23 +34,27 @@ struct relation {
 
 struct sentence {
     struct relation *head;
-    struct relation *body;
+    //struct relation *body;
+    struct sentence *next;
 };
 
 struct relation *head_relation_spisok; 
-struct sentence *head_of_sentence; 
+struct sentence *head_sentence_spisok;
+
 
 struct relation *create_relation(int arg)
 {
+
     struct relation *relation = malloc(sizeof(struct relation));
     relation->count_args = 1;
     relation->args[0] = arg;
     relation->args[1] = 0;
+    //printf("\narg is %i\n", arg);
     relation->next = NULL;
     return relation;
 }
 
-struct relation * add_relation_to_spisok(int arg)
+struct relation * create_relation_add_to_spisok(int arg)
 {
     struct relation *p = head_relation_spisok;
     while (p->next != NULL)
@@ -60,17 +64,18 @@ struct relation * add_relation_to_spisok(int arg)
     return p->next;
 }
 
-
 struct relation *add_arg_to_relation(int arg)
 {
     struct relation *p = head_relation_spisok;
     while (p->next != NULL)
         p = p->next;
+
     p->count_args++;
     p->args[p->count_args] = arg;
     p->args[p->count_args + 1] = 0;
     return p;
 }
+
 struct relation *add_name_to_relation(int name)
 {
     struct relation *p = head_relation_spisok;
@@ -80,27 +85,35 @@ struct relation *add_name_to_relation(int name)
     return p;
 }
 
-
-
-
-struct sentence *create_sentense(struct relation *head, struct relation *body)
+struct sentence *create_sentence_and_add_to_spisok()
 {
-    struct sentence *sentence = malloc(sizeof(struct sentence));
-    sentence->head = head;
-    sentence->body = body;
-    return sentence;
-}
-struct relation *add_relation_to_body(struct relation *relation)
-{
-    struct relation *p = head_of_sentence->body;
+    struct sentence *p = head_sentence_spisok;
     while (p->next != NULL)
         p = p->next;
-    p->next = relation;
-    return p->next;
+
+    struct sentence *sentence = malloc(sizeof(struct sentence));
+    sentence->head = head_relation_spisok->next;
+    //sentence->body = head_relation_spisok->next->next;
+    head_relation_spisok->next = NULL;
+    p->next = sentence;
+    return sentence;
 }
 
+struct relation *add_relation_to_last_sentense(int relation_name)
+{
+    struct sentence *h = head_sentence_spisok;
+    while (h->next != NULL)
+        h = h->next;
+    
+    struct relation *p = h->head;
+    while (p->next != NULL)
+        p = p->next;
 
-
+    p->next = head_relation_spisok->next;
+    head_relation_spisok->next = NULL;
+    p->next->relation_name = relation_name;
+    return p->next;
+}
 
 int main_mass[100];
 int main_mass_copy[100];
@@ -159,13 +172,33 @@ int print_main_mass()
     return 0;
 }
 
+
+void print_relation_spisok()
+{
+    struct relation *p = head_relation_spisok;
+    printf("print_relation_spisok\n");
+    while (p != NULL) {
+        printf("relation_name = %d count_args = %d\n", p->relation_name, p->count_args);
+    }
+}
+
+void print_sentence_spisok()
+{
+    struct sentence *p = head_sentence_spisok;
+    printf("print_sentence_spisok\n");
+    while(p != NULL)
+        printf("head = %d", p->head->relation_name);
+    
+    printf("\n");
+}
+
 int main()
 {
     head_relation_spisok = malloc(sizeof(head_relation_spisok));
-    head_of_sentence = 
+    head_sentence_spisok = malloc(sizeof(head_sentence_spisok));
     head_relation_spisok->next = NULL;
-    head_of_sentence->head = NULL;
-    head_of_sentence->body = NULL;
+    head_sentence_spisok->head = NULL;
+    head_sentence_spisok->next = NULL;
     FILE *file_mass;
     if ((file_mass = fopen("mainmass.txt", "r")) == NULL) {
         printf("Can't open file mainmass.txt\n");
@@ -215,39 +248,37 @@ int main()
     }
 
     struct rule PROGR__MOP = {//PROGR->MOP
-        7, PROGR, {MOP, is_key_word('#')}, {0}, NULL
+        9, PROGR, {MOP, is_key_word('#')}, {0}, NULL
     };
     struct rule MOP__MOP_P = {//MOP->MOP P
         8, MOP, {MOP, P}, {0}, &PROGR__MOP
     };
     struct rule MOP__P = {//MOP->P
-        9, MOP, {P }, {0}, &MOP__MOP_P
+        7, MOP, {P }, {0}, &MOP__MOP_P
     };
-
-
     struct rule P__a_BRACKET_ARG_BRACKET_POINT = {//P->a(ARG).
-        1, P, {a, is_key_word('('), ARG, is_key_word(')'), is_key_word('.')}, {0}, &MOP__P
+        6, P, {a, is_key_word('('), ARG, is_key_word(')'), is_key_word('.')}, {0}, &MOP__P
     };
 
     struct rule P__Q_POINT = {//P->Q.
-        2, P, {Q, is_key_word('.')}, {0}, &P__a_BRACKET_ARG_BRACKET_POINT
+        5, P, {Q, is_key_word('.')}, {0}, &P__a_BRACKET_ARG_BRACKET_POINT
     };
 
     struct rule Q__Q_COMMA_a__BRACKET_ARG_BRACKET = {//Q->Q,a(ARG)
-        3, Q, {Q, is_key_word(','), a, is_key_word('('), ARG, is_key_word(')'), 0}, {0}, &P__Q_POINT
+        4, Q, {Q, is_key_word(','), a, is_key_word('('), ARG, is_key_word(')'), 0}, {0}, &P__Q_POINT
     };
 
     struct rule Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET = {//Q->a(ARG):-a(ARG)
-        4, Q,
+        3, Q,
         {a, is_key_word('('), ARG, is_key_word(')'), is_key_word(':'), is_key_word('-'), a, is_key_word('('), ARG, is_key_word(')')},
         {0},
         &Q__Q_COMMA_a__BRACKET_ARG_BRACKET
     };
     struct rule ARG__a = {//ARG->a
-        5, ARG, {a, 0}, {is_key_word('('), 0}, &Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET
+        2, ARG, {a, 0}, {is_key_word('('), 0}, &Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET
     };
     struct rule ARG__ARG_COMMA_a = {//ARG->ARG,a
-        6, ARG, {ARG, is_key_word(','), a, 0}, {0}, &ARG__a
+        1, ARG, {ARG, is_key_word(','), a, 0}, {0}, &ARG__a
     };
 
 
@@ -301,8 +332,37 @@ int main()
                 main_i = -1;
                 print_main_mass();
                 printf("Done rule %d\n\n", p->id_rule);
-                // getchar();
-                break;
+
+                switch (p->id_rule) {
+                        case 1:
+                            add_arg_to_relation(main_mass_copy[main_i]);
+                        
+                        case 2:
+                            create_relation_add_to_spisok(main_mass_copy[main_i]);
+
+                        case 3:
+                            create_sentence_and_add_to_spisok();
+
+                        case 4:
+                            add_relation_to_last_sentense(main_mass_copy[main_i+2]);
+                        
+                        //case 5:
+                            //create_relation_add_to_spisok(main_mass_copy[main_i]);
+                            //create_sentence_and_add_to_spisok();
+
+                        case 6:
+                            create_relation_add_to_spisok(main_mass_copy[main_i]);
+                            create_sentence_and_add_to_spisok();
+
+                }
+
+
+
+
+
+
+                    
+                
             }
         }
         main_i++;
