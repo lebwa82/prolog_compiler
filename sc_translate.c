@@ -38,7 +38,7 @@ struct sentence {
     struct sentence *next;
 };
 
-struct relation *head_relation_spisok; 
+struct relation *head_relation_spisok;
 struct sentence *head_sentence_spisok;
 
 
@@ -54,7 +54,7 @@ struct relation *create_relation(int arg)
     return relation;
 }
 
-struct relation * create_relation_add_to_spisok(int arg)
+struct relation *create_relation_and_add_to_spisok(int arg)
 {
     struct relation *p = head_relation_spisok;
     while (p->next != NULL)
@@ -71,8 +71,8 @@ struct relation *add_arg_to_relation(int arg)
         p = p->next;
 
     p->count_args++;
-    p->args[p->count_args] = arg;
-    p->args[p->count_args + 1] = 0;
+    p->args[p->count_args-1] = arg;
+    p->args[p->count_args] = 0;
     return p;
 }
 
@@ -96,6 +96,7 @@ struct sentence *create_sentence_and_add_to_spisok()
     //sentence->body = head_relation_spisok->next->next;
     head_relation_spisok->next = NULL;
     p->next = sentence;
+    sentence->next = NULL;
     return sentence;
 }
 
@@ -104,7 +105,7 @@ struct relation *add_relation_to_last_sentense(int relation_name)
     struct sentence *h = head_sentence_spisok;
     while (h->next != NULL)
         h = h->next;
-    
+
     struct relation *p = h->head;
     while (p->next != NULL)
         p = p->next;
@@ -175,20 +176,29 @@ int print_main_mass()
 
 void print_relation_spisok()
 {
-    struct relation *p = head_relation_spisok;
+    struct relation *p = head_relation_spisok->next;
     printf("print_relation_spisok\n");
     while (p != NULL) {
         printf("relation_name = %d count_args = %d\n", p->relation_name, p->count_args);
+        p = p->next;
     }
 }
 
 void print_sentence_spisok()
 {
-    struct sentence *p = head_sentence_spisok;
+    struct sentence *p = head_sentence_spisok->next;
     printf("print_sentence_spisok\n");
-    while(p != NULL)
-        printf("head = %d", p->head->relation_name);
-    
+    while (p != NULL) {
+        struct relation *q = p->head->next;
+        while (q != NULL) {
+            printf("relation_name = %d count_args = %d", q->relation_name, q->count_args);
+            q = q->next;
+        }
+        printf("\n");
+        //printf("head = %d", p->head->relation_name);
+        p = p->next;
+    }
+
     printf("\n");
 }
 
@@ -326,49 +336,64 @@ int main()
                     p = p->next;
                     continue;
                 }
+                
+                printf("Done rule %d\n\n", p->id_rule);
+
+                switch (p->id_rule) {
+                    case 1:
+                        puts("case 1\n");
+                        add_arg_to_relation(main_mass_copy[main_i]);
+                        break;
+
+                    case 2:
+                        puts("case 2\n");
+                        create_relation_and_add_to_spisok(main_mass_copy[main_i]);
+                        break;
+
+                    case 3:
+                        puts("case 3\n");
+                        create_sentence_and_add_to_spisok();
+                        break;
+
+                    case 4:
+                        puts("case 4\n");
+                        //printf("relation_name = ")
+                        //add_relation_to_last_sentense(main_mass_copy[main_i + 2]);
+                        add_relation_to_last_sentense(3);
+                        break;
+
+                    //case 5:
+                    //create_relation_and_add_to_spisok(main_mass_copy[main_i]);
+                    //create_sentence_and_add_to_spisok();
+
+                    case 6:
+                        puts("case 6\n");
+                        create_relation_and_add_to_spisok(main_mass_copy[main_i]);
+                        create_sentence_and_add_to_spisok();
+                        break;
+
+                }
+
                 print_main_mass();
                 compress_main_massiv(main_i + 1, rule_len_R - 1);
                 main_mass[main_i] = p->L;
                 main_i = -1;
                 print_main_mass();
-                printf("Done rule %d\n\n", p->id_rule);
-
-                switch (p->id_rule) {
-                        case 1:
-                            add_arg_to_relation(main_mass_copy[main_i]);
-                        
-                        case 2:
-                            create_relation_add_to_spisok(main_mass_copy[main_i]);
-
-                        case 3:
-                            create_sentence_and_add_to_spisok();
-
-                        case 4:
-                            add_relation_to_last_sentense(main_mass_copy[main_i+2]);
-                        
-                        //case 5:
-                            //create_relation_add_to_spisok(main_mass_copy[main_i]);
-                            //create_sentence_and_add_to_spisok();
-
-                        case 6:
-                            create_relation_add_to_spisok(main_mass_copy[main_i]);
-                            create_sentence_and_add_to_spisok();
-
-                }
 
 
 
 
 
 
-                    
-                
+
+
             }
         }
         main_i++;
     }
     printf("END\n");
     print_main_mass();
+    print_sentence_spisok();
 
     return 0;
 }

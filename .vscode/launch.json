@@ -26,7 +26,7 @@
       "stopAtEntry": false,
       "externalConsole": false,
       "cwd": "/home/dima/prolog_compiler",
-      "program": "/home/dima/prolog_compiler/build/Debug/outDebug",
+      "program": "${workspaceFolder}/main.o",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

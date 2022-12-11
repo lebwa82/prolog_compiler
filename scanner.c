@@ -8,7 +8,7 @@
 int main_massiv_id[100];
 int main_i;
 
-char pre_stroka[100] = "nested_condition(\"mark\",Book):-sum(X,R). read(Nina, article).#";
+char pre_stroka[100] = "nested_condition(Book):-sum(X,Y,Z,P). read(Nina, article, qwerty).#";
 char stroka[100] = "";
 //char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
 int stroka_i = -1;
