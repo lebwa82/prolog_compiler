@@ -25,37 +25,111 @@ struct rule {
     struct rule *next;
 };
 
+struct relation {
+    int relation_name;
+    int count_args;
+    int args[30];
+    struct relation *next;
+};
+
+struct sentence {
+    struct relation *head;
+    struct relation *body;
+};
+
+struct relation *head_relation_spisok; 
+struct sentence *head_of_sentence; 
+
+struct relation *create_relation(int arg)
+{
+    struct relation *relation = malloc(sizeof(struct relation));
+    relation->count_args = 1;
+    relation->args[0] = arg;
+    relation->args[1] = 0;
+    relation->next = NULL;
+    return relation;
+}
+
+struct relation * add_relation_to_spisok(int arg)
+{
+    struct relation *p = head_relation_spisok;
+    while (p->next != NULL)
+        p = p->next;
+
+    p->next = create_relation(arg);
+    return p->next;
+}
+
+
+struct relation *add_arg_to_relation(int arg)
+{
+    struct relation *p = head_relation_spisok;
+    while (p->next != NULL)
+        p = p->next;
+    p->count_args++;
+    p->args[p->count_args] = arg;
+    p->args[p->count_args + 1] = 0;
+    return p;
+}
+struct relation *add_name_to_relation(int name)
+{
+    struct relation *p = head_relation_spisok;
+    while (p->next != NULL)
+        p = p->next;
+    p->relation_name = name;
+    return p;
+}
+
+
+
+
+struct sentence *create_sentense(struct relation *head, struct relation *body)
+{
+    struct sentence *sentence = malloc(sizeof(struct sentence));
+    sentence->head = head;
+    sentence->body = body;
+    return sentence;
+}
+struct relation *add_relation_to_body(struct relation *relation)
+{
+    struct relation *p = head_of_sentence->body;
+    while (p->next != NULL)
+        p = p->next;
+    p->next = relation;
+    return p->next;
+}
+
+
+
 
 int main_mass[100];
+int main_mass_copy[100];
 int main_mass_size = 0;
 int name_table_size = 0;
 struct literal *Names;
 
 int get_len_rule_R(int *R)
 {
-    int i=0;
+    int i = 0;
     while (R[i] != 0) {
         i++;
     }
     return i;
 }
 
-int is_symbol_not_a_condition_symbol(int main_i, int rule_len_R, int * condition_symbol)
+int is_symbol_not_a_condition_symbol(int main_i, int rule_len_R, int *condition_symbol)
 {
-    int i=0;
+    int i = 0;
     //printf("main_i+rule_len_R = %d main_mass_size = %d\n", main_i+rule_len_R, main_mass_size);
-    if(main_i+rule_len_R >= main_mass_size)
+    if (main_i + rule_len_R >= main_mass_size)
         return 0;
-    int symbol = main_mass[main_i+rule_len_R];
-    for(i=0; i<20; i++) {
-        if(condition_symbol[i] == symbol)
+    int symbol = main_mass[main_i + rule_len_R];
+    for (i = 0; i < 20; i++) {
+        if (condition_symbol[i] == symbol)
             return 1;
     }
     return 0;
 }
-
-
-
 
 int compress_main_massiv(int left, int size)
 {
@@ -70,13 +144,13 @@ int compress_main_massiv(int left, int size)
     }
     main_mass[left] = main_mass[left + size];
     left++;
-    main_mass_size=main_mass_size-size;
+    main_mass_size = main_mass_size - size;
     return 0;
 }
 
 
 int print_main_mass()
-{   
+{
     printf("main_mass_size = %d\n", main_mass_size);
     for (int i = 0; i < main_mass_size; i++) {
         printf("%2d ", main_mass[i]);
@@ -87,6 +161,11 @@ int print_main_mass()
 
 int main()
 {
+    head_relation_spisok = malloc(sizeof(head_relation_spisok));
+    head_of_sentence = 
+    head_relation_spisok->next = NULL;
+    head_of_sentence->head = NULL;
+    head_of_sentence->body = NULL;
     FILE *file_mass;
     if ((file_mass = fopen("mainmass.txt", "r")) == NULL) {
         printf("Can't open file mainmass.txt\n");
@@ -136,7 +215,7 @@ int main()
     }
 
     struct rule PROGR__MOP = {//PROGR->MOP
-        7, PROGR, {MOP}, {0}, NULL
+        7, PROGR, {MOP, is_key_word('#')}, {0}, NULL
     };
     struct rule MOP__MOP_P = {//MOP->MOP P
         8, MOP, {MOP, P}, {0}, &PROGR__MOP
@@ -145,7 +224,7 @@ int main()
         9, MOP, {P }, {0}, &MOP__MOP_P
     };
 
-    
+
     struct rule P__a_BRACKET_ARG_BRACKET_POINT = {//P->a(ARG).
         1, P, {a, is_key_word('('), ARG, is_key_word(')'), is_key_word('.')}, {0}, &MOP__P
     };
@@ -155,95 +234,81 @@ int main()
     };
 
     struct rule Q__Q_COMMA_a__BRACKET_ARG_BRACKET = {//Q->Q,a(ARG)
-       3, Q, {Q, is_key_word(','), a, is_key_word('('), ARG, is_key_word(')'), 0}, {0}, &P__Q_POINT
+        3, Q, {Q, is_key_word(','), a, is_key_word('('), ARG, is_key_word(')'), 0}, {0}, &P__Q_POINT
     };
 
     struct rule Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET = {//Q->a(ARG):-a(ARG)
-       4, Q,
+        4, Q,
         {a, is_key_word('('), ARG, is_key_word(')'), is_key_word(':'), is_key_word('-'), a, is_key_word('('), ARG, is_key_word(')')},
         {0},
         &Q__Q_COMMA_a__BRACKET_ARG_BRACKET
     };
     struct rule ARG__a = {//ARG->a
-       5, ARG, {a, 0}, {is_key_word('('), 0}, &Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET
+        5, ARG, {a, 0}, {is_key_word('('), 0}, &Q__a_BRACKET_ARG_BRACKET_COLON_DASH_a_BRACKET_ARG_BRACKET
     };
     struct rule ARG__ARG_COMMA_a = {//ARG->ARG,a
-       6, ARG, {ARG, is_key_word(','), a, 0}, {0}, &ARG__a
+        6, ARG, {ARG, is_key_word(','), a, 0}, {0}, &ARG__a
     };
 
 
     print_main_mass();
+    memcpy(main_mass_copy, main_mass, sizeof(main_mass));
     for (int i = 0; i < main_mass_size; i++) {
-        if(main_mass[i] > 0)
-        {
+        if (main_mass[i] > 0) {
             main_mass[i] = a;
         }
     }
     print_main_mass();
     //getchar();
     main_mass[main_mass_size] = 0;
-    int main_i, rule_len_R, i=0, j;
+    int main_i, rule_len_R, i = 0, j;
     struct rule *head = &ARG__ARG_COMMA_a;
     struct rule *p = head;
     main_i = 0;
-    while(main_i <= main_mass_size){
+    while (main_i <= main_mass_size) {
         p = head;
         while (p != NULL) {
             int flag = 0;
             int *R = p->R;
-            //printf("id_rule = %d main_i = %d\n", p->id_rule, main_i);
-            if(R == NULL) {
+
+            if (R == NULL) {
                 printf("NULL\n");
                 return 0;
             }
-          //  getchar();
+
             rule_len_R = get_len_rule_R(p->R);
-            if(p->id_rule == 1)
-            {
-                //printf("rule_len_R = %d\n", rule_len_R);
-                //printf("\n j = %d!!!!!!!!!!!!!!!\n", j);
-            }
-                
             j = main_i;
-            //printf("\n j = %d!!!!!!!!!!!!!!!\n", j);
+
             for (i = 0; i < rule_len_R; i++, j++) {
-                //if(p->id_rule == 1)
-                //    printf(" i = %3d, j = %3d main_mass[j] = %3d R[i] = %3d\n", i, j, main_mass[j], main_mass[j]);
                 if (main_mass[j] != R[i]) {
                     p = p->next;
                     flag = 1;//правило не подошло
-                    //printf("правило не подошло\n\n");
+
                     break;
                 }
             }
-            //printf("Flag = %i\n", flag);
-            
+
+
             if (flag == 0) { //правило подошло, заменяем R->L
-                int current_symbol = main_mass[main_i+rule_len_R];
-                //printf("For rule number %d cond_symb = %d\n", p->id_rule ,is_symbol_not_a_condition_symbol(main_i, rule_len_R, p->condition_symbol));
-                if(is_symbol_not_a_condition_symbol(main_i, rule_len_R, p->condition_symbol))
-                {
+                int current_symbol = main_mass[main_i + rule_len_R];
+                if (is_symbol_not_a_condition_symbol(main_i, rule_len_R, p->condition_symbol)) {
                     p = p->next;
-                    //main_i++;
                     continue;
                 }
-                //printf("before= main_i+1 = %d len = %d\n", main_i+1, rule_len_R);
-                //print_main_mass();
                 print_main_mass();
-                compress_main_massiv(main_i+1, rule_len_R-1);
+                compress_main_massiv(main_i + 1, rule_len_R - 1);
                 main_mass[main_i] = p->L;
                 main_i = -1;
                 print_main_mass();
-                printf("Done rule %d\n", p->id_rule);
-                getchar();
+                printf("Done rule %d\n\n", p->id_rule);
+                // getchar();
                 break;
             }
-            //p = p->next;
         }
         main_i++;
     }
     printf("END\n");
     print_main_mass();
 
-return 0;
+    return 0;
 }

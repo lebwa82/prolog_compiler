@@ -1,4 +1,4 @@
-//todo ввод из файла, комментарии, пробелы, исправить чтение float, неразбериха с "типом" переменной (пременная - отдельный вид, насколько я понял.)
+//todo ввод из файла, исправить чтение float
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -8,7 +8,7 @@
 int main_massiv_id[100];
 int main_i;
 
-char pre_stroka[100] = "nested_condition(\"mark\",Book):-sum(X,R). read(Nina, article). ";//:-relation  (Tom,123,-22222).";
+char pre_stroka[100] = "nested_condition(\"mark\",Book):-sum(X,R). read(Nina, article).#";
 char stroka[100] = "";
 //char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
 int stroka_i = -1;

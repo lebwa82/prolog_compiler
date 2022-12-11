@@ -1,11 +1,13 @@
-
-15) ARG->ARG,a   добавить аргумент в relation
-16) ARG->a  R != '(' create struct relation c пока одним аргументом
-17) Q->a(ARG):-a(ARG) create struct sentence
-18) Q->Q,a(ARG)     добавить в body relation
+___________________________ФИНАЛЬНАЯ ГРАММАТИКА________________________
+15) ARG->ARG,a                          добавить аргумент в relation
+16) ARG->a              R != '('        create struct relation c пока одним аргументом
+17) Q->a(ARG):-a(ARG)                   create struct sentence
+18) Q->Q,a(ARG)                         добавить в body relation
 19) P->Q.
 20) P->a(ARG).
 
-21) PROGR->MOP              R = '\0'
+
+21) PROGR->MOP#         //R = '\0'
 22) MOP->MOP P
 23) MOP->P    
+______________________________________________________________________
