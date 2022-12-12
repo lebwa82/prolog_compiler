@@ -8,12 +8,13 @@
 int main_massiv_id[100];
 int main_i;
 
-char pre_stroka[100] = "nested_condition(Book):-sum(X,Y,Z,P). read(Nina, article, qwerty).#";
+char pre_stroka[100] = "nested_condition(Book):-sum(X,Y). read(Nina, article, qwerty).";
 char stroka[100] = "";
 //char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
 int stroka_i = -1;
 int pre_stroka_i = -1;
 int max_main_id;
+
 
 char get_symbol()
 {
@@ -42,79 +43,6 @@ char step_back()
 }
 
 struct literal *head;
-
-
-int append_word_in_literals(char *word, enum type type, enum const_or_var const_or_var)
-// СДЕЛАТЬ ПРОВЕРКУ НА КОНЕЦ ПРЕДОЖЕНИЯ
-//потому что переменная живет в рамках одного предложения
-{
-    struct literal *p = head;
-    while (p->next != NULL) {
-        if (strcmp(p->literal_name, word) == 0)
-            return p->id;
-        p = p->next;
-    }
-    
-    if (strcmp(p->literal_name, word) == 0)
-        return p->id;
-
-    struct literal *last = p;
-
-    //пробежаться по массиву
-    max_main_id++;
-    p = malloc(sizeof(struct literal));
-    p->id = max_main_id;
-    p->type = type;
-    p->const_or_var = const_or_var;
-
-    memcpy(p->literal_name, word, strlen(word));
-    if (type == DIGIT) {
-        p->value_char[0] = '\0';
-        p->value_int = atoi(word);
-    } else {
-        memcpy(p->value_char, word, strlen(word));
-        p->value_int = 0;
-    }
-
-    last->next = p;
-    p->next = NULL;
-    return p->id;
-    //если есть - вернуть текущий id, если нет - добавить новый и вернуть
-}
-
-int print_literal()
-{   FILE *name_table;
-    if ((name_table = fopen("name_table.txt", "w")) == NULL) {
-        printf("Невозможно открыть файл\n");
-        return 0;
-    };
-    struct literal *p = head->next;
-    while (p != NULL) {
-        if(p->type == DIGIT)
-            fprintf(name_table, "%2d %2d %2d %s %s %2d\n", p->id, p->type, p->const_or_var, p->literal_name, "NULL", p->value_int);
-        else 
-        fprintf(name_table, "%2d %2d %2d %s %s %2d\n", p->id, p->type, p->const_or_var, p->literal_name, p->value_char, p->value_int);
-        printf("p->literal_name = %s,  p->id = %2d,  p->type = %d\n", p->literal_name, p->id, p->type);
-        p = p->next;
-    }
-    fclose(name_table);
-    return 0;
-}
-int print_main_massiv()
-{   
-    FILE *file_mass;
-    if ((file_mass = fopen("mainmass.txt", "w")) == NULL) {
-        printf("Невозможно открыть файл\n");
-        return 0;
-    };
-    for (int i = 0; i < main_i; i++) {
-        printf("%2d ", main_massiv_id[i]);
-        fprintf(file_mass, "%2d ", main_massiv_id[i]);
-    }
-    fclose(file_mass);
-    printf("\n");
-    return 0;
-}
 
 int main()
 {

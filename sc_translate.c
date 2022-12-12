@@ -17,6 +17,37 @@ enum leexema123 {
     ARG,
 };
 
+typedef struct lex_words {
+    int index;
+    char word[10];
+} lex_words;
+
+lex_words lexema_string[] = {{PROGR, "PROGR"}, {MOP, 'MOP'}, {P, "P"}, {Q, "Q"},
+    {S, "S"}, {E, "E"}, {T, "T"}, {F, "F"}, {a, "a"}, {ARG, "ARG"}
+};
+
+char *get_lex_string(int word)
+{
+    for (int i = 0; i < 10; i++) {
+        //printf("%d %c\n", key_words_list[i].index, key_words_list[i].word);
+        if (lexema_string[i].index == word)
+            return lexema_string[i].word;
+    }
+    return NULL;
+}
+
+int get_key_word(int index)
+{
+    for (int i = 0; i < len_key_words_list; i++) {
+        //printf("%d %c\n", key_words_list[i].index, key_words_list[i].word);
+        if (key_words_list[i].index == index)
+            return key_words_list[i].word;
+    }
+    return 0;
+}
+
+
+
 struct rule {
     int id_rule;
     int L;
@@ -44,7 +75,6 @@ struct sentence *head_sentence_spisok;
 
 struct relation *create_relation(int arg)
 {
-
     struct relation *relation = malloc(sizeof(struct relation));
     relation->count_args = 1;
     relation->args[0] = arg;
@@ -56,9 +86,17 @@ struct relation *create_relation(int arg)
 
 struct relation *create_relation_and_add_to_spisok(int arg)
 {
+    printf("create_relation_and_add_to_spisok\n");
+    if (head_relation_spisok == NULL) {
+        printf("NULL\n");
+    }
     struct relation *p = head_relation_spisok;
-    while (p->next != NULL)
+    printf("after\n");
+    while (p->next != NULL) {
+        printf("%d\n", p->count_args);
         p = p->next;
+    }
+
 
     p->next = create_relation(arg);
     return p->next;
@@ -71,19 +109,20 @@ struct relation *add_arg_to_relation(int arg)
         p = p->next;
 
     p->count_args++;
-    p->args[p->count_args-1] = arg;
+    p->args[p->count_args - 1] = arg;
     p->args[p->count_args] = 0;
+    p->next = NULL;
     return p;
 }
 
-struct relation *add_name_to_relation(int name)
+/*struct relation *add_name_to_relation(int name)
 {
     struct relation *p = head_relation_spisok;
     while (p->next != NULL)
         p = p->next;
     p->relation_name = name;
     return p;
-}
+}*/
 
 struct sentence *create_sentence_and_add_to_spisok()
 {
@@ -167,7 +206,13 @@ int print_main_mass()
 {
     printf("main_mass_size = %d\n", main_mass_size);
     for (int i = 0; i < main_mass_size; i++) {
-        printf("%2d ", main_mass[i]);
+        if (get_key_word(main_mass[i])>0) {
+            printf("%c", get_key_word(main_mass[i]));
+            
+        } else {
+            printf("%s", get_lex_string(main_mass[i]));
+        }
+        //printf("(%2d) ", main_mass[i]); //вывод кода каждого спец-символа(лексемы)
     }
     printf("\n");
     return 0;
@@ -336,10 +381,10 @@ int main()
                     p = p->next;
                     continue;
                 }
-                
+
                 printf("Done rule %d\n\n", p->id_rule);
 
-                switch (p->id_rule) {
+                /*switch (p->id_rule) {
                     case 1:
                         puts("case 1\n");
                         add_arg_to_relation(main_mass_copy[main_i]);
@@ -372,21 +417,13 @@ int main()
                         create_sentence_and_add_to_spisok();
                         break;
 
-                }
+                }*/
 
                 print_main_mass();
                 compress_main_massiv(main_i + 1, rule_len_R - 1);
                 main_mass[main_i] = p->L;
                 main_i = -1;
                 print_main_mass();
-
-
-
-
-
-
-
-
             }
         }
         main_i++;
