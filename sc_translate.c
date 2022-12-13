@@ -56,6 +56,8 @@ int get_key_word(int index)
     return 0;
 }
 
+int stack_len;
+
 char *get_literal_word(int index)
 {
     int i;
@@ -251,8 +253,9 @@ int compress_main_massiv(int left, int size)
 
 int print_main_mass()
 {
-    printf("main_mass_size = %d\n", main_mass_size);
-    for (int i = 0; i < main_mass_size; i++) {
+    stack_len+=2;
+    printf("main_mass_size = %d\n", stack_len);
+    for (int i = 0; i < stack_len; i++) {
         if (get_key_word(main_mass[i]) > 0) {
             printf("%c", get_key_word(main_mass[i]));
 
@@ -377,10 +380,9 @@ int main()
         return 0;
     }
     puts("");
-    puts("360");
+
     head_relation_spisok->next = NULL;
-    print_relation_spisok();
-    puts("362");
+
     while ((fscanf(name_table, "%d %d %d %s %s %d\n", &elem, &elem, &elem, str, str, &elem) != EOF))
         name_table_size++;
     fseek(name_table, 0, SEEK_SET);
@@ -446,6 +448,7 @@ int main()
 
 
     //print_main_mass();
+    stack_len = main_mass_size;
     memcpy(main_mass_copy, main_mass, sizeof(main_mass));
     for (int i = 0; i < main_mass_size; i++) {
         if (main_mass[i] > 0) {
@@ -479,6 +482,7 @@ int main()
             }
 
             rule_len_R = get_len_rule_R(p->R);
+            
             j = main_i;
 
             for (i = 0; i < rule_len_R; i++, j++) {
@@ -535,15 +539,19 @@ int main()
                         break;
 
                 }
-
+                stack_len = main_i + rule_len_R-1;
                 print_main_mass();
+                
                 //print_main_mass_copy();
                 compress_main_massiv(main_i + 1, rule_len_R - 1);
                 main_mass[main_i] = p->L;
                 main_mass_copy[main_i] = p->L;
+                stack_len = main_i;
                 main_i = -1;
                 //print_main_mass_copy();
+                
                 print_main_mass();
+                
                 printf("Done rule %d\n\n", p->id_rule);
             }
         }
