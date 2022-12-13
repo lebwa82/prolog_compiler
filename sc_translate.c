@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include "header.h"
 
+void print_sentence_spisok();
+void print_relation_spisok();
+
+
+int main_mass[100];
+int main_mass_copy[100];
+int main_mass_size = 0;
+int name_table_size = 0;
+struct literal *Names;
+
 enum leexema123 {
     PROGR = -150,
     MOP,
@@ -22,7 +32,7 @@ typedef struct lex_words {
     char word[10];
 } lex_words;
 
-lex_words lexema_string[] = {{PROGR, "PROGR"}, {MOP, 'MOP'}, {P, "P"}, {Q, "Q"},
+lex_words lexema_string[] = {{PROGR, "PROGR"}, {MOP, "MOP"}, {P, "P"}, {Q, "Q"},
     {S, "S"}, {E, "E"}, {T, "T"}, {F, "F"}, {a, "a"}, {ARG, "ARG"}
 };
 
@@ -46,7 +56,19 @@ int get_key_word(int index)
     return 0;
 }
 
+char *get_literal_word(int index)
+{
+    int i;
+    for (i = 0; i < name_table_size; i++) {
+        //printf("\nNames[%i].id IS: %d\n", i,  Names[i].id);
+        if (Names[i].id == index) {
+            //printf("p->literal_name = %s", Names[i].literal_name);
+            return Names[i].literal_name;
+        }
+    }
+    return NULL;
 
+}
 
 struct rule {
     int id_rule;
@@ -86,61 +108,88 @@ struct relation *create_relation(int arg)
 
 struct relation *create_relation_and_add_to_spisok(int arg)
 {
-    printf("create_relation_and_add_to_spisok\n");
-    if (head_relation_spisok == NULL) {
-        printf("NULL\n");
-    }
+    //printf("create_relation_and_add_to_spisok\n");
+
+    //printf("before print_relation_spisok\n");
+    //print_relation_spisok(); //
+
     struct relation *p = head_relation_spisok;
-    printf("after\n");
+    //printf("after\n");
     while (p->next != NULL) {
-        printf("%d\n", p->count_args);
+        //printf("%d\n", p->count_args);
         p = p->next;
     }
 
 
     p->next = create_relation(arg);
+
+    //printf("after print_relation_spisok\n");
+    //print_relation_spisok();//
+    //printf("\n");
+
     return p->next;
 }
 
 struct relation *add_arg_to_relation(int arg)
 {
+    //printf("add_arg_to_relation\n");
     struct relation *p = head_relation_spisok;
     while (p->next != NULL)
         p = p->next;
+
+    //printf("before print_relation_spisok\n");
+    //print_relation_spisok(); //
 
     p->count_args++;
     p->args[p->count_args - 1] = arg;
     p->args[p->count_args] = 0;
-    p->next = NULL;
+    //p->next = NULL;
+
+    //printf("after print_relation_spisok\n");
+    //print_relation_spisok();//
+    //printf("\n");
     return p;
 }
 
-/*struct relation *add_name_to_relation(int name)
+struct sentence *create_sentence_and_add_to_spisok(int name1, int name2)
 {
-    struct relation *p = head_relation_spisok;
-    while (p->next != NULL)
-        p = p->next;
-    p->relation_name = name;
-    return p;
-}*/
-
-struct sentence *create_sentence_and_add_to_spisok()
-{
+    //printf("create_sentence_and_add_to_spisok\n");
+    //printf("name1: %s name2 = %s\n", get_literal_word(name1), get_literal_word(name2));
     struct sentence *p = head_sentence_spisok;
     while (p->next != NULL)
         p = p->next;
 
+    //printf("before add\n");
+    //print_sentence_spisok();//
+    //printf("doing print_relation_spisok\n");
+    //print_relation_spisok();
     struct sentence *sentence = malloc(sizeof(struct sentence));
+
+    if (name1 != 0)
+        head_relation_spisok->next->relation_name = name1;
+    if (name2 != 0)
+        head_relation_spisok->next->next->relation_name = name2;
+
+    //printf("after adding names\n");
+    //print_relation_spisok();//
+
     sentence->head = head_relation_spisok->next;
+
     //sentence->body = head_relation_spisok->next->next;
     head_relation_spisok->next = NULL;
     p->next = sentence;
     sentence->next = NULL;
+    //printf("after add\n");
+    //print_sentence_spisok();//
+    //printf("doing print_relation_spisok\n");
+    //print_relation_spisok();//
+
     return sentence;
 }
 
 struct relation *add_relation_to_last_sentense(int relation_name)
 {
+    //printf("add_relation_to_last_sentense\n");
     struct sentence *h = head_sentence_spisok;
     while (h->next != NULL)
         h = h->next;
@@ -155,11 +204,6 @@ struct relation *add_relation_to_last_sentense(int relation_name)
     return p->next;
 }
 
-int main_mass[100];
-int main_mass_copy[100];
-int main_mass_size = 0;
-int name_table_size = 0;
-struct literal *Names;
 
 int get_len_rule_R(int *R)
 {
@@ -193,9 +237,12 @@ int compress_main_massiv(int left, int size)
 
     while (main_mass[left + size] != 0) {
         main_mass[left] = main_mass[left + size];
+        main_mass_copy[left] = main_mass_copy[left + size];
         left++;
+
     }
     main_mass[left] = main_mass[left + size];
+    main_mass_copy[left] = main_mass_copy[left + size];
     left++;
     main_mass_size = main_mass_size - size;
     return 0;
@@ -206,13 +253,30 @@ int print_main_mass()
 {
     printf("main_mass_size = %d\n", main_mass_size);
     for (int i = 0; i < main_mass_size; i++) {
-        if (get_key_word(main_mass[i])>0) {
+        if (get_key_word(main_mass[i]) > 0) {
             printf("%c", get_key_word(main_mass[i]));
-            
+
         } else {
-            printf("%s", get_lex_string(main_mass[i]));
+            printf("%s ", get_lex_string(main_mass[i]));
         }
         //printf("(%2d) ", main_mass[i]); //вывод кода каждого спец-символа(лексемы)
+    }
+    printf("\n");
+    return 0;
+}
+
+int print_main_mass_copy()
+{
+    printf("main_mass_size = %d\n", main_mass_size);
+    for (int i = 0; i < main_mass_size; i++) {
+        if (get_literal_word(main_mass_copy[i]) != NULL) {
+            printf("%s ", get_literal_word(main_mass_copy[i]));
+        } else if (get_key_word(main_mass[i]) > 0) {
+            printf("%c", get_key_word(main_mass[i]));
+        }  else {
+            printf("%s ", get_lex_string(main_mass[i]));
+            //вывод кода каждого спец-символа(лексемы)
+        }
     }
     printf("\n");
     return 0;
@@ -224,19 +288,49 @@ void print_relation_spisok()
     struct relation *p = head_relation_spisok->next;
     printf("print_relation_spisok\n");
     while (p != NULL) {
-        printf("relation_name = %d count_args = %d\n", p->relation_name, p->count_args);
+        printf("relation_name = %d  count_args = %d args: ", p->relation_name, p->count_args);
+        for (int i = 0; i < p->count_args; i++) {
+            printf("%s, ", get_literal_word(p->args[i]));
+        }
+        printf("\n");
         p = p->next;
     }
+    //printf("\n");
 }
 
 void print_sentence_spisok()
 {
     struct sentence *p = head_sentence_spisok->next;
-    printf("print_sentence_spisok\n");
+    printf("\nprint_sentence_spisok:\n");
+
     while (p != NULL) {
-        struct relation *q = p->head->next;
+        printf("Head:\n");
+        struct relation *q = p->head;
+        printf("relation_name = %s, count_args = %d, args: ", get_literal_word(q->relation_name),
+               q->count_args);
+        //printf("%s(", get_literal_word(q->relation_name));
+        for (int i = 0; i < q->count_args; i++) {
+            if (i)
+                printf(", %s", get_literal_word(q->args[i]));
+            if (!i)
+                printf("%s", get_literal_word(q->args[i]));
+        }
+        printf("\n");
+        q = q->next;
+        if (q != NULL)
+            printf("Body:\n");
+
         while (q != NULL) {
-            printf("relation_name = %d count_args = %d", q->relation_name, q->count_args);
+            printf("relation_name = %s, count_args = %d, args: ", get_literal_word(q->relation_name),
+                   q->count_args);
+            //printf("%s(", get_literal_word(q->relation_name));
+            for (int i = 0; i < q->count_args; i++) {
+                if (i)
+                    printf(", %s", get_literal_word(q->args[i]));
+                if (!i)
+                    printf("%s", get_literal_word(q->args[i]));
+            }
+            printf("\n");
             q = q->next;
         }
         printf("\n");
@@ -250,10 +344,15 @@ void print_sentence_spisok()
 int main()
 {
     head_relation_spisok = malloc(sizeof(head_relation_spisok));
+    print_relation_spisok();
     head_sentence_spisok = malloc(sizeof(head_sentence_spisok));
     head_relation_spisok->next = NULL;
     head_sentence_spisok->head = NULL;
     head_sentence_spisok->next = NULL;
+    print_relation_spisok();
+
+    //Names = malloc(sizeof(struct literal)):
+
     FILE *file_mass;
     if ((file_mass = fopen("mainmass.txt", "r")) == NULL) {
         printf("Can't open file mainmass.txt\n");
@@ -261,6 +360,8 @@ int main()
     }
     int elem;
     char str[30];
+    print_relation_spisok();
+
     while ((fscanf(file_mass, "%d", &elem) != EOF))
         main_mass_size++;
     fseek(file_mass, 0, SEEK_SET);
@@ -276,10 +377,14 @@ int main()
         return 0;
     }
     puts("");
+    puts("360");
+    head_relation_spisok->next = NULL;
+    print_relation_spisok();
+    puts("362");
     while ((fscanf(name_table, "%d %d %d %s %s %d\n", &elem, &elem, &elem, str, str, &elem) != EOF))
         name_table_size++;
     fseek(name_table, 0, SEEK_SET);
-    struct literal *Names = (struct literal *)malloc(sizeof(struct literal) * name_table_size);
+    Names = (struct literal *)malloc(sizeof(struct literal) * name_table_size);
     int id, type, const_or_var, value_int;
     char literal_name[30], value_char[30];
     printf("id \ttype \tconst_or_var \tliteral_name \t\tvalue\n");
@@ -301,6 +406,9 @@ int main()
             printf("%d \t%d \t%d \t%s %20s\n", Names[i].id, Names[i].type, Names[i].const_or_var,
                    Names[i].literal_name, Names[i].value_char);
     }
+    //puts("388");
+    //print_relation_spisok();
+    //return 0;
 
     struct rule PROGR__MOP = {//PROGR->MOP
         9, PROGR, {MOP, is_key_word('#')}, {0}, NULL
@@ -337,13 +445,16 @@ int main()
     };
 
 
-    print_main_mass();
+    //print_main_mass();
     memcpy(main_mass_copy, main_mass, sizeof(main_mass));
     for (int i = 0; i < main_mass_size; i++) {
         if (main_mass[i] > 0) {
             main_mass[i] = a;
         }
     }
+    printf("print_main_mass_copy\n");
+    //print_main_mass_copy();
+    printf("print_main_mass\n");
     print_main_mass();
     //getchar();
     main_mass[main_mass_size] = 0;
@@ -351,6 +462,11 @@ int main()
     struct rule *head = &ARG__ARG_COMMA_a;
     struct rule *p = head;
     main_i = 0;
+
+    printf("start relation spisok\n");
+    print_relation_spisok();
+    //return 0;
+
     while (main_i <= main_mass_size) {
         p = head;
         while (p != NULL) {
@@ -382,29 +498,30 @@ int main()
                     continue;
                 }
 
-                printf("Done rule %d\n\n", p->id_rule);
 
-                /*switch (p->id_rule) {
+
+                switch (p->id_rule) {
                     case 1:
-                        puts("case 1\n");
-                        add_arg_to_relation(main_mass_copy[main_i]);
+                        //puts("case 1\n");
+
+                        add_arg_to_relation(main_mass_copy[main_i + 2]);
                         break;
 
                     case 2:
-                        puts("case 2\n");
+                        //puts("case 2\n");
                         create_relation_and_add_to_spisok(main_mass_copy[main_i]);
                         break;
 
                     case 3:
-                        puts("case 3\n");
-                        create_sentence_and_add_to_spisok();
+                        //puts("case 3\n");
+                        create_sentence_and_add_to_spisok(main_mass_copy[main_i], main_mass_copy[main_i + 6]);
                         break;
 
                     case 4:
-                        puts("case 4\n");
+                        //puts("case 4\n");
                         //printf("relation_name = ")
                         //add_relation_to_last_sentense(main_mass_copy[main_i + 2]);
-                        add_relation_to_last_sentense(3);
+                        add_relation_to_last_sentense(main_mass_copy[main_i + 2]);
                         break;
 
                     //case 5:
@@ -412,18 +529,22 @@ int main()
                     //create_sentence_and_add_to_spisok();
 
                     case 6:
-                        puts("case 6\n");
+                        //puts("case 6\n");
                         create_relation_and_add_to_spisok(main_mass_copy[main_i]);
-                        create_sentence_and_add_to_spisok();
+                        create_sentence_and_add_to_spisok(main_mass_copy[main_i], 0);
                         break;
 
-                }*/
+                }
 
                 print_main_mass();
+                //print_main_mass_copy();
                 compress_main_massiv(main_i + 1, rule_len_R - 1);
                 main_mass[main_i] = p->L;
+                main_mass_copy[main_i] = p->L;
                 main_i = -1;
+                //print_main_mass_copy();
                 print_main_mass();
+                printf("Done rule %d\n\n", p->id_rule);
             }
         }
         main_i++;
@@ -431,6 +552,28 @@ int main()
     printf("END\n");
     print_main_mass();
     print_sentence_spisok();
+
+    //printf("\nNames[0]->id is %s\n", Names[0].literal_name);
+
+    /* вывод таблицы имен
+    for(int i =0; i<name_table_size; i++){
+        if (Names[i].type == DIGIT) {
+            Names[i].value_char[0] = '\0';
+            printf("%d \t%d \t%d \t%s %20d\n", Names[i].id, Names[i].type, Names[i].const_or_var,
+                   Names[i].literal_name, Names[i].value_int);
+        } else
+            printf("%d \t%d \t%d \t%s %20s\n", Names[i].id, Names[i].type, Names[i].const_or_var,
+                   Names[i].literal_name, Names[i].value_char);
+    }*/
+
+    if (main_mass_size != 1 || main_mass[0] != PROGR) {
+        printf("ERROR Programm\n");
+    } else {
+        printf("Correct Programm\n");
+    }
+
+
+
 
     return 0;
 }

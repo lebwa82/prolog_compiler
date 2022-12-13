@@ -1,25 +1,35 @@
+/*---------------------------------------------------------------------------------------------
+Header-файл, содержащий функции, переменные и массивы, небходимые в разных частях проекта
+-----------------------------------------------------------------------------------------------*/
+
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+//главный массив, выходной для сканера, входной для синт. управляемого перевода
+int main_massiv_id[100]; 
+//итератор главного массива
+int main_i; 
+//итоговый размер главного массива
+int max_main_id = 1; 
 
-int main_massiv_id[100];
-int main_i;
-int max_main_id = 1;
-
-enum type { //тип, положительный
+//Список типов данных, кодируются положительным числом
+enum type { 
     DIGIT,
     STRING,
     NAME,
     VAR_TYPE,
 };
 
-enum const_or_var {//вид
+//возможный вид типов данных
+enum const_or_var {
     CONSTANTA,
     VAR,
 };
 
-struct literal { //может как ключевое слово, так и литералы
+//Элемент таблицы имен TBD ПОМЕНЯТЬ НАЗВАНИЕ!!!!!!
+struct literal { 
     int id;
     enum type type;//тип
     enum const_or_var const_or_var;//вид
@@ -31,11 +41,13 @@ struct literal { //может как ключевое слово, так и ли
 };
 struct literal *head_literals;
 
+//элемент таблицы ключевых слов
 typedef struct key_words {
     int index;
     char word;
 } key_words;
 
+//Таблица ключевых слов интерпретируемого языка
 key_words key_words_list[] = {{-1, '+'}, {-2, '-'}, {-3, '='}, {-4, '*'},
     {-5, '/'}, {-6, '<'}, {-7, '>'}, {-8, '['},
     {-9, ']'}, {-10, ':'}, {-11, ';'}, {-12, ','},
@@ -44,6 +56,8 @@ key_words key_words_list[] = {{-1, '+'}, {-2, '-'}, {-3, '='}, {-4, '*'},
 
 
 int len_key_words_list = sizeof(key_words_list) / sizeof(key_words_list[0]);
+
+//Проверка, находится ли слово в таблице ключевых слов
 int is_key_word(char word)
 {
     for (int i = 0; i < len_key_words_list; i++) {
@@ -54,6 +68,7 @@ int is_key_word(char word)
     return 0;
 }
 
+//Заполнение таблицы имен
 int append_word_in_literals(char *word, enum type type, enum const_or_var const_or_var)
 // СДЕЛАТЬ ПРОВЕРКУ НА КОНЕЦ ПРЕДОЖЕНИЯ
 //потому что переменная живет в рамках одного предложения
@@ -92,6 +107,8 @@ int append_word_in_literals(char *word, enum type type, enum const_or_var const_
     //если есть - вернуть текущий id, если нет - добавить новый и вернуть
 }
 
+
+//функция вывода элемента таблицы имен
 int print_literal()
 {   FILE *name_table;
     if ((name_table = fopen("name_table.txt", "w")) == NULL) {
@@ -111,6 +128,7 @@ int print_literal()
     return 0;
 }
 
+//функция вывода главного массива
 int print_main_massiv()
 {   
     FILE *file_mass;

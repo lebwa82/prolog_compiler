@@ -1,9 +1,18 @@
+/*----------------------------------------------------------------------------------------------
+Сканер-автомат, создающий массив лексем из входного потока данных
+Дмитрий Парфёнов, Михаил Авшалумов, Александр Волков. ИНБИКСТ, Б07-903. 2022 год
+------------------------------------------------------------------------------------------------*/
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include "header.h"
 
+//Входная строка с программой 
+char stroka[200] = "nested_condition(Book):-sum(33,Y,44,555,ABC),asoka(S,fdesf).second_sentense(f1):-sss(f2,f3),sochi(f4).#";
+
+//Входной алфавит сканера
 char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 char digit[] = "0123456789";
 //char alphabet_digit[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -11,7 +20,7 @@ char CAV[] = "\"";
 char hash[] = "#";
 char key_word_massiv[] = "+-=*/<>[]:;,|().";
 
-
+//Проверка наличия символа во входном алфавите
 int is_symbol_in_massiv(char symbol, char *p)
 {
     int i = 0;
@@ -26,6 +35,7 @@ int is_symbol_in_massiv(char symbol, char *p)
     return 0;
 }
 
+//Список состояний
 enum states {
     START,
     GET_WORD,
@@ -34,7 +44,7 @@ enum states {
     COMPLETE,
     ERROR
 };
-
+//Список процедур
 enum proc {
     step_back = 1,
     get_word,
@@ -54,6 +64,7 @@ struct categories {
     int procedure;
 };
 
+//Сутевая часть автомата
 struct categories rules[] = {
     {START, GET_WORD, alphabet, get_word},
     {START, GET_NUMBER, digit, get_digit},
@@ -68,7 +79,7 @@ struct categories rules[] = {
 
     {GET_NUMBER, GET_NUMBER, digit, get_digit},
     {GET_NUMBER, ERROR, alphabet, error},
-    {GET_NUMBER, START, key_word_massiv, get_key_word},
+    {GET_NUMBER, START, key_word_massiv, end_of_word_with_keyword},
     {GET_NUMBER, ERROR, hash, error},
 
     {GET_STRING, GET_STRING, alphabet, get_word},
@@ -81,11 +92,11 @@ struct categories rules[] = {
 
 
 //char pre_stroka[100] = "nested_condition(Book):-sum(X,Y,Z,P).read(Nina, article, qwerty).#";
-char stroka[100] = "nested_condition(Book):-sum(X,Y,Z,Q,ABC),as(S,P).#";
+
 //char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
-int stroka_i;
+int stroka_i; //итератор для входного потока данных
 int pre_stroka_i;
-int max_main_id;
+int max_main_id; //итоговый размер выходного массива
 
 
 char get_symbol()
@@ -106,19 +117,20 @@ int main()
     int word_i = 0, i = 0;
     char symbol;
     int id;
-    main_i = 0;
+    main_i = 0; //итератор выходного массива
     stroka_i = -1;
     pre_stroka_i = 0;
-    max_main_id = 0;
+    max_main_id = 0; 
     int flag = 0;
     int len_rules = sizeof(rules)/sizeof(rules[0]);
     int q = START;
     head_literals = malloc(sizeof(struct literal));
     head_literals->next = NULL; 
    
+    //Запуск автомата, поиск нужного состояния
     while (flag != 1) {
         symbol = get_symbol();
-        printf("i = %c\n", symbol);
+        //printf("i = %c\n", symbol);
         for(i = 0; i<len_rules; i++)
         {
             if(q == rules[i].q1 && is_symbol_in_massiv(symbol, rules[i].condition_symbol) == 1)
@@ -129,11 +141,8 @@ int main()
                 break;
             }
         }
-        //printf("stroka = %s stroka_i = %d\n", stroka, stroka_i);
-        //printf("procedure = %d\n", procedure);
-        //printf("q = %d\n", q);
-        //return 0;
-        
+
+        //выбор необходимой процедуры
         switch (procedure) {
             case 0:
                 break;
