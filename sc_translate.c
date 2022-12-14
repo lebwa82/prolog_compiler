@@ -264,7 +264,7 @@ int print_main_mass()
         }
         //printf("(%2d) ", main_mass[i]); //вывод кода каждого спец-символа(лексемы)
     }
-    printf("\n");
+    printf("\t");
     return 0;
 }
 
@@ -281,7 +281,7 @@ int print_main_mass_copy()
             //вывод кода каждого спец-символа(лексемы)
         }
     }
-    printf("\n");
+    printf("  ");
     return 0;
 }
 
