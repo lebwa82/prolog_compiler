@@ -1,0 +1,16 @@
+Head:
+relation_name = nnnnested_condition, count_args = 1, args: Book
+Body:
+relation_name = sum, count_args = 5, args: 33, Y, 44, 555, ABC
+relation_name = asoka, count_args = 2, args: S, fdesf
+
+Head:
+relation_name = second_sentense, count_args = 1, args: f1
+Body:
+relation_name = sss, count_args = 2, args: f2, f3
+relation_name = sochi, count_args = 1, args: f4
+
+Head:
+relation_name = alone, count_args = 1, args: alone_head
+
+

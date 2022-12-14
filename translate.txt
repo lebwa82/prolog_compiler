@@ -1,0 +1,99 @@
+a (a )
+a (ARG )
+Done rule 2
+
+a (ARG ):-a (a ,
+a (ARG ):-a (ARG ,
+Done rule 2
+
+a (ARG ):-a (ARG ,a ,
+a (ARG ):-a (ARG ,
+Done rule 1
+
+a (ARG ):-a (ARG ,a ,
+a (ARG ):-a (ARG ,
+Done rule 1
+
+a (ARG ):-a (ARG ,a ,
+a (ARG ):-a (ARG ,
+Done rule 1
+
+a (ARG ):-a (ARG ,a )
+a (ARG ):-a (ARG )
+Done rule 1
+
+a (ARG ):-a (ARG ),
+Q ,
+Done rule 3
+
+Q ,a (a ,
+Q ,a (ARG ,
+Done rule 2
+
+Q ,a (ARG ,a )
+Q ,a (ARG )
+Done rule 1
+
+Q ,a (ARG ).
+Q .
+Done rule 4
+
+Q .a 
+P a 
+Done rule 5
+
+P a 
+MOP a 
+Done rule 7
+
+MOP a (a )
+MOP a (ARG )
+Done rule 2
+
+MOP a (ARG ):-a (a ,
+MOP a (ARG ):-a (ARG ,
+Done rule 2
+
+MOP a (ARG ):-a (ARG ,a )
+MOP a (ARG ):-a (ARG )
+Done rule 1
+
+MOP a (ARG ):-a (ARG ),
+MOP Q ,
+Done rule 3
+
+MOP Q ,a (a )
+MOP Q ,a (ARG )
+Done rule 2
+
+MOP Q ,a (ARG ).
+MOP Q .
+Done rule 4
+
+MOP Q .a 
+MOP P a 
+Done rule 5
+
+MOP P a 
+MOP a 
+Done rule 8
+
+MOP a (a )
+MOP a (ARG )
+Done rule 2
+
+MOP a (ARG ).#
+MOP P #
+Done rule 6
+
+MOP P #
+MOP #
+Done rule 8
+
+MOP #(null) 
+PROGR (null) 
+Done rule 9
+
+can't collapse the rules anymore. END
+PROGR (null) (null) (null) 
+Correct Programm

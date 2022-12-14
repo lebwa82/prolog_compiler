@@ -1,4 +1,4 @@
- 1  2  1 nested_condition nested_condition  0
+ 1  2  1 nnnnested_condition nnnnested_condition  0
  2  2  1 Book Book  0
  3  2  1 sum sum  0
  4  2  1 33 33  0
@@ -16,3 +16,5 @@
 16  2  1 f3 f3  0
 17  2  1 sochi sochi  0
 18  2  1 f4 f4  0
+19  2  1 alone alone  0
+20  2  1 alone_head alone_head  0

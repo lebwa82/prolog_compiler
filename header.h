@@ -11,7 +11,7 @@ Header-файл, содержащий функции, переменные и м
 int main_massiv_id[100]; 
 //итератор главного массива
 int main_i; 
-//итоговый размер главного массива
+//максимальный id главного массива
 int max_main_id = 1; 
 
 //Список типов данных, кодируются положительным числом
@@ -28,7 +28,7 @@ enum const_or_var {
     VAR,
 };
 
-//Элемент таблицы имен TBD ПОМЕНЯТЬ НАЗВАНИЕ!!!!!!
+//Элемент таблицы имен
 struct literal { 
     int id;
     enum type type;//тип
@@ -70,8 +70,6 @@ int is_key_word(char word)
 
 //Заполнение таблицы имен
 int append_word_in_literals(char *word, enum type type, enum const_or_var const_or_var)
-// СДЕЛАТЬ ПРОВЕРКУ НА КОНЕЦ ПРЕДОЖЕНИЯ
-//потому что переменная живет в рамках одного предложения
 {
     struct literal *p = head_literals;
     while (p->next != NULL) {

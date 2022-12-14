@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #include "header.h"
 
-//Входная строка с программой 
-char stroka[200] = "nested_condition(Book):-sum(33,Y,44,555,ABC),asoka(S,fdesf).second_sentense(f1):-sss(f2,f3),sochi(f4).#";
+//Входная строка с программой
+char stroka[200] =
+    "nested_condition(Book):-sum(33,Y,44,555,ABC),asoka(S,fdesf).second_sentense(f1):-sss(f2,f3),sochi(f4).#";
 
 //Входной алфавит сканера
 char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 char digit[] = "0123456789";
-//char alphabet_digit[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 char CAV[] = "\"";
 char hash[] = "#";
 char key_word_massiv[] = "+-=*/<>[]:;,|().";
@@ -25,13 +25,10 @@ int is_symbol_in_massiv(char symbol, char *p)
 {
     int i = 0;
     for (i = 0; i < strlen(p); i++) {
-        if (symbol == p[i])
-        {
-            //printf("return 1\n");
+        if (symbol == p[i]) {
             return 1;
         }
     }
-    //printf("return 0\n");        
     return 0;
 }
 
@@ -88,22 +85,37 @@ struct categories rules[] = {
     {GET_STRING, ERROR, hash, error},
 };
 
-
-
-
-//char pre_stroka[100] = "nested_condition(Book):-sum(X,Y,Z,P).read(Nina, article, qwerty).#";
-
-//char stroka[100] = "nested_condition(\"mark\",Book):-relation(Tom,123,-22222).";
 int stroka_i; //итератор для входного потока данных
 int pre_stroka_i;
 int max_main_id; //итоговый размер выходного массива
 
+void get_text_from_file()//прочитать текст из файла 
+{
+    int i = 0;
+    FILE *file = fopen("input.txt", "r");
+    if (!file) {
+        printf("No file input.txt");
+        exit(1);
+    }
+    char c;
+    while ((c = fgetc(file)) != EOF) {
+        //char c = fgetc(file);
+        //printf("c = %c\n", c);
+        //getchar();
+        if (c!= '\n' && c != ' ')
+        {
+            stroka[i] = c;
+            i++;
+        }
+    }
+    stroka[i] = '#';
+}
 
-char get_symbol()
+
+char get_symbol()//взять следующий символ
 {
     stroka_i++;
     if (stroka[stroka_i] != '\0') {
-        //printf("i = %c\n", stroka[stroka_i]);
         return stroka[stroka_i];
     }
     return 0;
@@ -112,6 +124,7 @@ char get_symbol()
 
 int main()
 {
+    get_text_from_file();
     enum proc procedure = error;
     char word[30];
     int word_i = 0, i = 0;
@@ -120,23 +133,19 @@ int main()
     main_i = 0; //итератор выходного массива
     stroka_i = -1;
     pre_stroka_i = 0;
-    max_main_id = 0; 
+    max_main_id = 0;
     int flag = 0;
-    int len_rules = sizeof(rules)/sizeof(rules[0]);
+    int len_rules = sizeof(rules) / sizeof(rules[0]);
     int q = START;
     head_literals = malloc(sizeof(struct literal));
-    head_literals->next = NULL; 
-   
+    head_literals->next = NULL;
+
     //Запуск автомата, поиск нужного состояния
     while (flag != 1) {
         symbol = get_symbol();
-        //printf("i = %c\n", symbol);
-        for(i = 0; i<len_rules; i++)
-        {
-            if(q == rules[i].q1 && is_symbol_in_massiv(symbol, rules[i].condition_symbol) == 1)
-            {    
+        for (i = 0; i < len_rules; i++) {
+            if (q == rules[i].q1 && is_symbol_in_massiv(symbol, rules[i].condition_symbol) == 1) {
                 q = rules[i].q2;
-                //printf("cond = %s\n", rules[i].condition_symbol);
                 procedure = rules[i].procedure;
                 break;
             }
@@ -208,10 +217,5 @@ int main()
                 flag = 1;
                 break;
         }
-
     }
-
-
-
-
 }

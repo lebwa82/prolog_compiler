@@ -1,0 +1,7 @@
+nnnnested_condition(Book):-
+sum(33,Y,44,555,ABC),
+asoka(S,fdesf).
+second_sentense(f1):-
+sss(f2,f3),
+sochi(f4).
+alone(alone_head).
